@@ -1,5 +1,9 @@
 package org.example;
 
+import org.example.dao.CountryDao;
+import org.example.dao.RegionDao;
+import org.example.model.RegionEntity;
+
 import java.sql.*;
 
 public class App
@@ -10,12 +14,39 @@ public class App
 
         ConnectionManager connectionManager = new ConnectionManager();
         Connection connection = connectionManager.getConnection();
-
-        printRegionOne(connection);
-        printItalia(connection);
-
+        RegionDao regionDao = new RegionDao(connection);
+        System.out.println(regionDao.getRegionById(2));
+        grubaKrecha();
+        CountryDao countryDao = new CountryDao(connection);
+        System.out.println(countryDao.getCountryById("BR"));
+        grubaKrecha();
+        System.out.println(regionDao.getAllRegions());
+        grubaKrecha();
+        System.out.println(("Wyświetlimy w jednej linii"));
+        regionDao.getAllRegions().forEach(System.out::println);
+        grubaKrecha();
+        System.out.println("Dodajemy region do bazy danych");
+        regionDao.save(new RegionEntity("East Europe"));
+        regionDao.getAllRegions().forEach(System.out::println);
+        grubaKrecha();
+        System.out.println("Usuwamy z bazy danych");
+        regionDao.delete(6);
+        regionDao.getAllRegions().forEach(System.out::println);
+        grubaKrecha();
+        System.out.println("Robimy update");
+        System.out.println("Before: " + regionDao.getRegionById(1));
+        RegionEntity regionById = regionDao.getRegionById(1);
+        regionById.setRegionName("EUROPAAAA");
+        regionDao.update(regionById);
+        System.out.println("Update: " + regionDao.getRegionById(1));
+        grubaKrecha();
+        System.out.println("Robimy transakcje");
+        regionDao.deleteTwo(10,11, null);
+        regionDao.getAllRegions().forEach(System.out::println);
         connection.close();
     }
+
+
 
     private static void printItalia(Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(
@@ -69,5 +100,7 @@ public class App
         correctPreparedStatement.execute();
         correctPreparedStatement.close();
     }
-
+    private static void grubaKrecha() {
+        System.out.println("+++++++++++++++++++++");
+    }
 }
